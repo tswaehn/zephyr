@@ -25,6 +25,7 @@ struct can_sam_config {
 	const struct atmel_sam_pmc_config clock_cfg;
 	const struct pinctrl_dev_config *pcfg;
 	int divider;
+	mm_reg_t *dma_base_reg;
 };
 
 static int can_sam_read_reg(const struct device *dev, uint16_t reg, uint32_t *val)
@@ -101,7 +102,12 @@ static int can_sam_init(const struct device *dev)
 		return ret;
 	}
 
-	ret = can_mcan_configure_mram(dev, 0U, sam_cfg->mram);
+	/* use higher 16bit only, mcan sets lower 16bit */
+	uint32_t mrba = (sam_cfg->mram & 0xFFFF0000);
+	/* keep lower 16bit, update higher 16bit */
+	*sam_cfg->dma_base_reg = mrba | (*sam_cfg->dma_base_reg & 0x0000FFFF);
+
+	ret = can_mcan_configure_mram(dev, mrba, sam_cfg->mram);
 	if (ret != 0) {
 		return ret;
 	}
@@ -149,6 +155,8 @@ static const struct can_mcan_ops can_sam_ops = {
 	.clear_mram = can_sam_clear_mram,
 };
 
+#define CAN_SAM_DMA_BASE_REG(inst) DT_REG_ADDR_BY_NAME(DT_DRV_INST(inst), dma_base_reg)
+
 #define CAN_SAM_IRQ_CFG_FUNCTION(inst)                                                         \
 static void config_can_##inst##_irq(void)                                                      \
 {                                                                                              \
@@ -174,6 +182,7 @@ static void config_can_##inst##_irq(void)                                       
 		.divider = DT_INST_PROP(inst, divider),			\
 		.pcfg = PINCTRL_DT_INST_DEV_CONFIG_GET(inst),		\
 		.config_irq = config_can_##inst##_irq,			\
+		.dma_base_reg = (mm_reg_t *) CAN_SAM_DMA_BASE_REG(inst) \
 	};								\
 									\
 	static const struct can_mcan_config can_mcan_cfg_##inst =	\
