@@ -233,4 +233,40 @@
 				: "memory");			\
 })
 
+/* uhartid -- user hardware thread id, seems to be not yet defined in toolchain */
+#define	uarthid		0x014
+
+#ifdef CONFIG_RISCV_KERNEL_IN_USER_MODE
+	/* zephyr runs in user mode */
+
+	/* inline assembly defines */
+	#define XSTATUS_IEN			USTATUS_IEN
+	#define XSTATUS_DEF_RESTORE		USTATUS_DEF_RESTORE
+	#define XSTATUS				0x000
+
+	/* register definition for assembly */
+	#define xhartid				uarthid
+	#define xscratch			uscratch
+	#define xstatus				ustatus
+	#define xepc				uepc
+	#define xcause				ucause
+	#define xret				uret
+#else
+	/* default: zephyr runs in machine mode */
+
+	/* inline assembly defines */
+	#define XSTATUS_IEN			MSTATUS_IEN
+	#define XSTATUS_DEF_RESTORE		MSTATUS_DEF_RESTORE
+	#define XSTATUS				0x300
+
+	/* register definition for assembly */
+	#define xhartid				mhartid
+	#define xscratch			mscratch
+	#define xstatus				mstatus
+	#define xepc				mepc
+	#define xcause				mcause
+	#define xret				mret
+
+#endif
+
 #endif /* CSR_H_ */
