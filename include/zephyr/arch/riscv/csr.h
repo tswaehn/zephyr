@@ -269,4 +269,10 @@
 
 #endif
 
+
+#define ESF_CONCAT_HELPER(a, b) 	a##b
+#define ESF_CONCAT(a, b) 		ESF_CONCAT_HELPER(a, b)
+
+#define ESF_OFFS(REG, OF)		ESF_CONCAT(__struct_arch_esf_, ESF_CONCAT(REG, _OFFSET(OF)))
+
 #endif /* CSR_H_ */

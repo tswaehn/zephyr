@@ -24,22 +24,22 @@
 
 /* Convenience macro for loading/storing register states. */
 #define DO_CALLER_SAVED(op) \
-	RV_E(	op t0, __struct_arch_esf_t0_OFFSET(sp)	);\
-	RV_E(	op t1, __struct_arch_esf_t1_OFFSET(sp)	);\
-	RV_E(	op t2, __struct_arch_esf_t2_OFFSET(sp)	);\
-	RV_I(	op t3, __struct_arch_esf_t3_OFFSET(sp)	);\
-	RV_I(	op t4, __struct_arch_esf_t4_OFFSET(sp)	);\
-	RV_I(	op t5, __struct_arch_esf_t5_OFFSET(sp)	);\
-	RV_I(	op t6, __struct_arch_esf_t6_OFFSET(sp)	);\
-	RV_E(	op a0, __struct_arch_esf_a0_OFFSET(sp)	);\
-	RV_E(	op a1, __struct_arch_esf_a1_OFFSET(sp)	);\
-	RV_E(	op a2, __struct_arch_esf_a2_OFFSET(sp)	);\
-	RV_E(	op a3, __struct_arch_esf_a3_OFFSET(sp)	);\
-	RV_E(	op a4, __struct_arch_esf_a4_OFFSET(sp)	);\
-	RV_E(	op a5, __struct_arch_esf_a5_OFFSET(sp)	);\
-	RV_I(	op a6, __struct_arch_esf_a6_OFFSET(sp)	);\
-	RV_I(	op a7, __struct_arch_esf_a7_OFFSET(sp)	);\
-	RV_E(	op ra, __struct_arch_esf_ra_OFFSET(sp)	)
+	RV_E(	op t0, ESF_OFFS(t0, sp)	);\
+	RV_E(	op t1, ESF_OFFS(t1, sp)	);\
+	RV_E(	op t2, ESF_OFFS(t2, sp)	);\
+	RV_I(	op t3, ESF_OFFS(t3, sp)	);\
+	RV_I(	op t4, ESF_OFFS(t4, sp)	);\
+	RV_I(	op t5, ESF_OFFS(t5, sp)	);\
+	RV_I(	op t6, ESF_OFFS(t6, sp)	);\
+	RV_E(	op a0, ESF_OFFS(a0, sp)	);\
+	RV_E(	op a1, ESF_OFFS(a1, sp)	);\
+	RV_E(	op a2, ESF_OFFS(a2, sp)	);\
+	RV_E(	op a3, ESF_OFFS(a3, sp)	);\
+	RV_E(	op a4, ESF_OFFS(a4, sp)	);\
+	RV_E(	op a5, ESF_OFFS(a5, sp)	);\
+	RV_I(	op a6, ESF_OFFS(a6, sp)	);\
+	RV_I(	op a7, ESF_OFFS(a7, sp)	);\
+	RV_E(	op ra, ESF_OFFS(ra, sp)	)
 
 #ifdef CONFIG_EXCEPTION_DEBUG
 /* Convenience macro for storing callee saved register [s0 - s11] states. */
@@ -190,11 +190,11 @@ SECTION_FUNC(exception.entry, _isr_wrapper)
 
 	/* Save MEPC register */
 	csrr t0, xepc
-	sr t0, __struct_arch_esf_xepc_OFFSET(sp)
+	sr t0, ESF_OFFS(xepc, sp)
 
 	/* Save MSTATUS register */
 	csrr t2, xstatus
-	sr t2, __struct_arch_esf_xstatus_OFFSET(sp)
+	sr t2, ESF_OFFS(xstatus, sp)
 
 #if defined(CONFIG_FPU_SHARING)
 	/* determine if FPU access was disabled */
@@ -385,9 +385,9 @@ is_kernel_syscall:
 	 * It's safe to always increment by 4, even with compressed
 	 * instructions, because the ecall instruction is always 4 bytes.
 	 */
-	lr t0, __struct_arch_esf_xepc_OFFSET(sp)
+	lr t0, ESF_OFFS(xepc, sp)
 	addi t0, t0, 4
-	sr t0, __struct_arch_esf_xepc_OFFSET(sp)
+	sr t0, ESF_OFFS(xepc, sp)
 
 #ifdef CONFIG_PMP_STACK_GUARD
 	/* Re-activate PMP for m-mode */
@@ -714,8 +714,8 @@ fp_trap_exit:
 #endif
 
 	/* Restore MEPC and MSTATUS registers */
-	lr t0, __struct_arch_esf_xepc_OFFSET(sp)
-	lr t2, __struct_arch_esf_xstatus_OFFSET(sp)
+	lr t0, ESF_OFFS(xepc, sp)
+	lr t2, ESF_OFFS(xstatus, sp)
 	csrw xepc, t0
 	csrw xstatus, t2
 

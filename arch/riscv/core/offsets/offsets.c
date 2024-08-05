@@ -109,8 +109,13 @@ GEN_OFFSET_STRUCT(arch_esf, a6);
 GEN_OFFSET_STRUCT(arch_esf, a7);
 #endif /* !CONFIG_RISCV_ISA_RV32E */
 
-GEN_OFFSET_STRUCT(arch_esf, xepc);
-GEN_OFFSET_STRUCT(arch_esf, xstatus);
+#ifdef CONFIG_RISCV_KERNEL_IN_USER_MODE
+GEN_OFFSET_STRUCT(arch_esf, uepc);
+GEN_OFFSET_STRUCT(arch_esf, ustatus);
+#else
+GEN_OFFSET_STRUCT(arch_esf, mepc);
+GEN_OFFSET_STRUCT(arch_esf, mstatus);
+#endif
 
 GEN_OFFSET_STRUCT(arch_esf, s0);
 
